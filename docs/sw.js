@@ -1,4 +1,4 @@
-const CACHE = "rutina-shell-v1";
+const CACHE = "rutina-shell-v2";
 const SHELL_FILES = [
   "./",
   "./index.html",
@@ -27,17 +27,19 @@ self.addEventListener("fetch", event => {
   // Never cache API calls to GitHub — data must always be fresh.
   if (url.hostname === "api.github.com") return;
 
-  // App shell: cache-first, falling back to network.
+  if (event.request.method !== "GET") return;
+
+  // App shell: network-first so updates show up without a manual cache
+  // reset, falling back to the cached copy when offline.
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request).then(res => {
-        if (res.ok && event.request.method === "GET") {
+    fetch(event.request)
+      .then(res => {
+        if (res.ok) {
           const clone = res.clone();
           caches.open(CACHE).then(cache => cache.put(event.request, clone));
         }
         return res;
-      });
-    }).catch(() => caches.match("./index.html"))
+      })
+      .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
   );
 });
