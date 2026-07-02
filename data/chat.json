@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": 1,
+    "role": "user",
+    "text": "Prueba: el press banca se sintió pesado, ¿bajamos peso?",
+    "ts": "2026-07-02T11:24:04.136Z"
+  }
+]
