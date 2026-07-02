@@ -551,17 +551,6 @@ async function ghPutFile(path, data, sha, message) {
   return json.content.sha;
 }
 
-function ensureToken() {
-  let token = getToken();
-  if (!token) {
-    token = window.prompt(
-      "Pegá tu GitHub Personal Access Token (permiso Contents: Read/Write en el repo training-app):"
-    );
-    if (token) setToken(token);
-  }
-  return getToken();
-}
-
 document.getElementById("settingsBtn").addEventListener("click", () => {
   const current = getToken();
   const token = window.prompt(
@@ -963,7 +952,7 @@ document.getElementById("chatInput").addEventListener("keydown", e => {
 
 // ---- Init ----
 async function init() {
-  ensureToken();
+  if (!getToken()) setSyncStatus("Sin token — tocá ⚙️ para configurar", "error");
   const loaded = await loadState();
   Object.assign(state, loaded);
   renderDate();
