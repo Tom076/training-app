@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Mi Rutina</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --card: #1e2127;
+    --card-border: #2c3038;
+    --text: #eef0f3;
+    --muted: #9aa1ac;
+    --accent: #4f8cff;
+    --good: #3ecf8e;
+    --warn: #f0a63a;
+    --danger: #ef5b5b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding-bottom: 100px;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    padding: 10px 12px 0;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .date {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: capitalize;
+  }
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px 10px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  /* Timer */
+  .timer-box {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 10px 12px 12px;
+    margin-bottom: 10px;
+  }
+  .timer-display {
+    font-size: 42px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .timer-display.done {
+    color: var(--good);
+    animation: pulse 0.6s ease-in-out 3;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .timer-presets {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .preset-btn {
+    background: #2a2e36;
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .preset-btn:active { background: var(--accent); }
+  .timer-controls {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .timer-controls button {
+    flex: 1;
+    max-width: 110px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  #startPause { background: var(--good); color: #06281a; }
+  #resetTimer { background: #2a2e36; color: var(--text); }
+
+  main { padding: 12px; }
+  .day-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 4px 0 12px;
+  }
+  .exercise-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .ex-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .ex-name {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 20px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .badge.principal { background: rgba(79,140,255,0.15); color: var(--accent); }
+  .badge.accesorio { background: rgba(240,166,58,0.15); color: var(--warn); }
+  .badge.core { background: rgba(62,207,142,0.15); color: var(--good); }
+
+  .ex-meta {
+    display: flex;
+    gap: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .ex-meta b { color: var(--text); }
+
+  .peso-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .peso-row label { font-size: 12px; color: var(--muted); }
+  .peso-row input {
+    flex: 1;
+    background: #14161a;
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .sets-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .set-check {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: #14161a;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .set-check.checked {
+    background: var(--good);
+    color: #06281a;
+    border-color: var(--good);
+  }
+  .rest-btn {
+    background: none;
+    border: 1px solid var(--card-border);
+    color: var(--muted);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .main-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 12px;
+    margin-top: 12px;
+  }
+  .main-tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .main-tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .view.hidden { display: none; }
+
+  #chatMessages {
+    padding: 12px;
+    min-height: 40vh;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chat-empty {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .chat-bubble {
+    max-width: 80%;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+  }
+  .chat-bubble.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.assistant {
+    align-self: flex-start;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-input-row {
+    position: sticky;
+    bottom: 64px;
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-top: 1px solid var(--card-border);
+  }
+  .chat-input-row textarea {
+    flex: 1;
+    background: #14161a;
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+  }
+  .chat-input-row button {
+    background: var(--good);
+    color: #06281a;
+    border: none;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .chat-hint {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 0 12px 8px;
+    text-align: center;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--card-border);
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  footer button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #saveSession { background: var(--accent); color: white; }
+  #copySummary { background: #2a2e36; color: var(--text); }
+  #toggleHistory { background: #2a2e36; color: var(--text); flex: 0 0 auto; padding: 12px 14px; }
+
+  #history {
+    padding: 0 12px 12px;
+  }
+  #history.hidden { display: none; }
+  .hist-entry {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .hist-entry .hist-date { font-weight: 700; margin-bottom: 6px; }
+  .hist-entry .hist-ex { color: var(--muted); margin-bottom: 3px; }
+
+  .toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--good);
+    color: #06281a;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 20;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="date" id="todayDate"></div>
+  <div class="tabs" id="dayTabs"></div>
+  <div class="timer-box">
+    <div class="timer-display" id="timerDisplay">01:30</div>
+    <div class="timer-presets">
+      <button class="preset-btn" data-secs="90">90s Principal</button>
+      <button class="preset-btn" data-secs="60">60s Accesorio</button>
+      <button class="preset-btn" data-secs="45">45s Core</button>
+    </div>
+    <div class="timer-controls">
+      <button id="startPause">Iniciar</button>
+      <button id="resetTimer">Reset</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-tabs">
+  <div class="main-tab active" data-view="rutina">Rutina</div>
+  <div class="main-tab" data-view="chat">Chat</div>
+</div>
+
+<main id="exerciseList" class="view"></main>
+
+<div id="chatView" class="view hidden">
+  <div id="chatMessages"></div>
+  <div class="chat-input-row">
+    <textarea id="chatInput" placeholder="Escribí tu feedback o tu pregunta..."></textarea>
+    <button id="chatSend">Enviar</button>
+  </div>
+  <div class="chat-hint">Cuando le pidas a Claude que revise el chat, tu mensaje aparece acá.</div>
+</div>
+
+<div id="history" class="hidden"></div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <button id="saveSession">Guardar sesión</button>
+  <button id="copySummary">Copiar resumen</button>
+  <button id="toggleHistory">Historial</button>
+</footer>
+
+<script>
+const ROUTINE = {
+  1: {
+    title: "Fuerza Pierna",
+    exercises: [
+      { name: "Bulgarian Split Squat", series: "3+1 operada", reps: "8", pesoDefault: "4 kg/mano", rest: "principal" },
+      { name: "Single Leg Squat", series: "3", reps: "8", pesoDefault: "Peso corporal", rest: "principal" },
+      { name: "RDL Unilateral", series: "3", reps: "10", pesoDefault: "19 kg", rest: "principal" },
+      { name: "Gemelo Unilateral", series: "3", reps: "10", pesoDefault: "10 kg", rest: "accesorio" },
+      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
+    ]
+  },
+  2: {
+    title: "Tren Superior",
+    exercises: [
+      { name: "Dominadas", series: "3", reps: "6", pesoDefault: "Peso corporal", rest: "principal" },
+      { name: "Press Banca Mancuernas", series: "3", reps: "8", pesoDefault: "16 kg", rest: "principal" },
+      { name: "Remo Unilateral", series: "3", reps: "10", pesoDefault: "22 kg", rest: "principal" },
+      { name: "Face Pull", series: "3", reps: "15", pesoDefault: "Banda 5 kg", rest: "accesorio" },
+      { name: "Y Raise", series: "3", reps: "15", pesoDefault: "Sin peso", rest: "accesorio" },
+      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
+    ]
+  },
+  3: {
+    title: "Potencia y Acondicionamiento",
+    exercises: [
+      { name: "Single Leg Balance", series: "3", reps: "30s/lado", pesoDefault: "—", rest: "accesorio" },
+      { name: "Lateral Band Walk", series: "3", reps: "15 pasos/lado", pesoDefault: "Banda", rest: "accesorio" },
+      { name: "Step-up Explosivo", series: "3", reps: "6/lado", pesoDefault: "Caja 12\"", rest: "principal" },
+      { name: "Broad Jump", series: "3", reps: "5", pesoDefault: "—", rest: "principal" },
+      { name: "Farmer Carry", series: "3", reps: "25m", pesoDefault: "Calibrar", rest: "principal" },
+      { name: "Suitcase Carry", series: "3", reps: "20m/lado", pesoDefault: "Calibrar", rest: "accesorio" },
+      { name: "Swing Mancuerna", series: "3", reps: "10", pesoDefault: "Calibrar", rest: "principal" },
+      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
+    ]
+  }
+};
+
+const REST_SECONDS = { principal: 90, accesorio: 60, core: 45 };
+
+async function loadState() {
+  try {
+    const res = await fetch("/api/state");
+    return await res.json();
+  } catch (e) {
+    return {};
+  }
+}
+function saveState(state) {
+  fetch("/api/state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(state)
+  }).catch(() => {
+    showToast("No se pudo guardar (¿el servidor sigue corriendo?)");
+  });
+}
+
+let state = { currentDay: 1, weights: {}, completed: {}, history: [] };
+
+function parseSetsCount(seriesStr) {
+  const match = seriesStr.match(/\d+/);
+  return match ? parseInt(match[0], 10) : 3;
+}
+
+function getWeight(day, idx) {
+  const saved = state.weights[day] && state.weights[day][idx];
+  return saved !== undefined ? saved : ROUTINE[day].exercises[idx].pesoDefault;
+}
+function getCompleted(day, idx, count) {
+  const saved = state.completed[day] && state.completed[day][idx];
+  if (saved && saved.length === count) return saved;
+  return new Array(count).fill(false);
+}
+
+function renderDate() {
+  const d = new Date();
+  document.getElementById("todayDate").textContent =
+    d.toLocaleDateString("es-ES", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById("dayTabs");
+  tabsEl.innerHTML = "";
+  Object.keys(ROUTINE).forEach(dayId => {
+    const btn = document.createElement("div");
+    btn.className = "tab" + (Number(dayId) === state.currentDay ? " active" : "");
+    btn.textContent = "Día " + dayId;
+    btn.onclick = () => {
+      state.currentDay = Number(dayId);
+      saveState(state);
+      renderTabs();
+      renderExercises();
+    };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function renderExercises() {
+  const day = state.currentDay;
+  const data = ROUTINE[day];
+  const list = document.getElementById("exerciseList");
+  list.innerHTML = `<div class="day-title">Día ${day} — ${data.title}</div>`;
+
+  data.exercises.forEach((ex, idx) => {
+    const setsCount = parseSetsCount(ex.series);
+    const completed = getCompleted(day, idx, setsCount);
+    const weight = getWeight(day, idx);
+
+    const card = document.createElement("div");
+    card.className = "exercise-card";
+
+    const setsHtml = completed.map((done, si) =>
+      `<div class="set-check ${done ? "checked" : ""}" data-idx="${idx}" data-set="${si}">${si + 1}</div>`
+    ).join("");
+
+    card.innerHTML = `
+      <div class="ex-head">
+        <div class="ex-name">${ex.name}</div>
+        <div class="badge ${ex.rest}">${ex.rest}</div>
+      </div>
+      <div class="ex-meta">
+        <span>Series: <b>${ex.series}</b></span>
+        <span>Reps: <b>${ex.reps}</b></span>
+      </div>
+      <div class="peso-row">
+        <label>Peso</label>
+        <input type="text" data-idx="${idx}" class="peso-input" value="${weight}">
+      </div>
+      <div class="sets-row">
+        ${setsHtml}
+        <button class="rest-btn" data-rest="${ex.rest}">⏱ Descanso (${REST_SECONDS[ex.rest]}s)</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  // wire up events
+  list.querySelectorAll(".peso-input").forEach(input => {
+    input.addEventListener("change", e => {
+      const idx = e.target.dataset.idx;
+      state.weights[day] = state.weights[day] || {};
+      state.weights[day][idx] = e.target.value;
+      saveState(state);
+    });
+  });
+
+  list.querySelectorAll(".set-check").forEach(box => {
+    box.addEventListener("click", e => {
+      const idx = e.target.dataset.idx;
+      const si = Number(e.target.dataset.set);
+      const setsCount = parseSetsCount(data.exercises[idx].series);
+      const arr = getCompleted(day, idx, setsCount).slice();
+      arr[si] = !arr[si];
+      state.completed[day] = state.completed[day] || {};
+      state.completed[day][idx] = arr;
+      saveState(state);
+      renderExercises();
+    });
+  });
+
+  list.querySelectorAll(".rest-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const rest = e.target.dataset.rest;
+      setTimerSeconds(REST_SECONDS[rest]);
+      startTimer();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+document.getElementById("saveSession").addEventListener("click", () => {
+  const day = state.currentDay;
+  const data = ROUTINE[day];
+  const entries = data.exercises.map((ex, idx) => {
+    const setsCount = parseSetsCount(ex.series);
+    const completed = getCompleted(day, idx, setsCount);
+    return {
+      name: ex.name,
+      peso: getWeight(day, idx),
+      seriesCompletadas: completed.filter(Boolean).length + "/" + setsCount
+    };
+  });
+  state.history.unshift({
+    date: new Date().toISOString(),
+    day: day,
+    dayTitle: data.title,
+    entries: entries
+  });
+  // reset per-session fields, keep weights
+  state.completed[day] = {};
+  saveState(state);
+  renderExercises();
+  renderHistory();
+  showToast("Sesión guardada ✓");
+});
+
+document.getElementById("copySummary").addEventListener("click", async () => {
+  const day = state.currentDay;
+  const data = ROUTINE[day];
+  let text = `Resumen — Día ${day}: ${data.title} (${new Date().toLocaleDateString("es-ES")})\n\n`;
+  data.exercises.forEach((ex, idx) => {
+    const setsCount = parseSetsCount(ex.series);
+    const completed = getCompleted(day, idx, setsCount);
+    const weight = getWeight(day, idx);
+    text += `- ${ex.name}: ${weight} — series: ${completed.filter(Boolean).length}/${setsCount}\n`;
+  });
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("Resumen copiado ✓");
+  } catch (e) {
+    showToast("No se pudo copiar");
+  }
+});
+
+document.getElementById("toggleHistory").addEventListener("click", () => {
+  const hist = document.getElementById("history");
+  hist.classList.toggle("hidden");
+  if (!hist.classList.contains("hidden")) renderHistory();
+});
+
+function renderHistory() {
+  const hist = document.getElementById("history");
+  if (state.history.length === 0) {
+    hist.innerHTML = `<div class="hist-entry">Todavía no hay sesiones guardadas.</div>`;
+    return;
+  }
+  hist.innerHTML = state.history.map(session => {
+    const d = new Date(session.date).toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" });
+    const exLines = session.entries.map(e =>
+      `<div class="hist-ex">${e.name}: ${e.peso} — ${e.seriesCompletadas}</div>`
+    ).join("");
+    return `<div class="hist-entry"><div class="hist-date">${d} — Día ${session.day}: ${session.dayTitle}</div>${exLines}</div>`;
+  }).join("");
+}
+
+// ---- Timer ----
+let timerSeconds = 90;
+let timerRemaining = 90;
+let timerInterval = null;
+let timerRunning = false;
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+}
+
+function updateTimerDisplay() {
+  document.getElementById("timerDisplay").textContent = formatTime(timerRemaining);
+}
+
+function setTimerSeconds(s) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = s;
+  timerRemaining = s;
+  document.getElementById("startPause").textContent = "Iniciar";
+  document.getElementById("timerDisplay").classList.remove("done");
+  updateTimerDisplay();
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.25, 0.5].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 880;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + delay);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.15);
+    });
+  } catch (e) {}
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  document.getElementById("startPause").textContent = "Pausar";
+  document.getElementById("timerDisplay").classList.remove("done");
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById("startPause").textContent = "Iniciar";
+      document.getElementById("timerDisplay").classList.add("done");
+      playBeep();
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById("startPause").textContent = "Iniciar";
+}
+
+document.getElementById("startPause").addEventListener("click", () => {
+  if (timerRunning) pauseTimer();
+  else startTimer();
+});
+document.getElementById("resetTimer").addEventListener("click", () => setTimerSeconds(timerSeconds));
+document.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => setTimerSeconds(Number(btn.dataset.secs)));
+});
+
+// ---- Main view tabs (Rutina / Chat) ----
+let chatPollInterval = null;
+
+document.querySelectorAll(".main-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".main-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    const view = tab.dataset.view;
+    document.getElementById("exerciseList").classList.toggle("hidden", view !== "rutina");
+    document.getElementById("chatView").classList.toggle("hidden", view !== "chat");
+    if (view === "chat") {
+      fetchChat();
+      if (!chatPollInterval) chatPollInterval = setInterval(fetchChat, 8000);
+    } else if (chatPollInterval) {
+      clearInterval(chatPollInterval);
+      chatPollInterval = null;
+    }
+  });
+});
+
+// ---- Chat ----
+async function fetchChat() {
+  try {
+    const res = await fetch("/api/chat");
+    const messages = await res.json();
+    renderChatMessages(messages);
+  } catch (e) {}
+}
+
+function renderChatMessages(messages) {
+  const box = document.getElementById("chatMessages");
+  const wasAtBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 20;
+  if (messages.length === 0) {
+    box.innerHTML = `<div class="chat-empty">Todavía no hay mensajes. Escribí algo abajo.</div>`;
+    return;
+  }
+  box.innerHTML = messages.map(m =>
+    `<div class="chat-bubble ${m.role}">${escapeHtml(m.text)}</div>`
+  ).join("");
+  if (wasAtBottom) box.scrollTop = box.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  try {
+    await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+    fetchChat();
+  } catch (e) {
+    showToast("No se pudo enviar (¿el servidor sigue corriendo?)");
+  }
+}
+
+document.getElementById("chatSend").addEventListener("click", sendChatMessage);
+document.getElementById("chatInput").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
+
+// ---- Init ----
+async function init() {
+  const loaded = await loadState();
+  Object.assign(state, loaded);
+  renderDate();
+  renderTabs();
+  renderExercises();
+  setTimerSeconds(90);
+}
+init();
+</script>
+</body>
+</html>
