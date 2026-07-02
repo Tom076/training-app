@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Mi Rutina</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#14161a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rutina">
 <style>
   :root {
     --bg: #14161a;
@@ -32,12 +38,34 @@
     padding: 10px 12px 0;
     border-bottom: 1px solid var(--card-border);
   }
+  .date-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
   .date {
     font-size: 13px;
     color: var(--muted);
     margin-bottom: 8px;
     text-transform: capitalize;
   }
+  .settings-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 0 8px;
+    line-height: 1;
+  }
+  .sync-status {
+    font-size: 11px;
+    color: var(--muted);
+    margin: -4px 0 8px;
+    min-height: 14px;
+  }
+  .sync-status.error { color: var(--danger); }
+  .sync-status.ok { color: var(--good); }
   .tabs {
     display: flex;
     gap: 6px;
@@ -374,7 +402,11 @@
 <body>
 
 <header>
-  <div class="date" id="todayDate"></div>
+  <div class="date-row">
+    <div class="date" id="todayDate"></div>
+    <button class="settings-btn" id="settingsBtn" title="Configurar token de GitHub">⚙️</button>
+  </div>
+  <div class="sync-status" id="syncStatus"></div>
   <div class="tabs" id="dayTabs"></div>
   <div class="timer-box">
     <div class="timer-display" id="timerDisplay">01:30</div>
@@ -456,22 +488,138 @@ const ROUTINE = {
 
 const REST_SECONDS = { principal: 90, accesorio: 60, core: 45 };
 
+// ---- GitHub-backed storage ----
+const GH_OWNER = "Tom076";
+const GH_REPO = "training-app";
+const GH_API = "https://api.github.com";
+const STATE_PATH = "data/state.json";
+const CHAT_PATH = "data/chat.json";
+
+function getToken() {
+  return localStorage.getItem("gh_pat") || "";
+}
+function setToken(t) {
+  localStorage.setItem("gh_pat", t.trim());
+}
+
+function b64EncodeUnicode(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(escape(atob(str.replace(/\n/g, ""))));
+}
+
+function setSyncStatus(msg, kind) {
+  const el = document.getElementById("syncStatus");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "sync-status" + (kind ? " " + kind : "");
+}
+
+async function ghGetFile(path) {
+  const token = getToken();
+  if (!token) throw new Error("no-token");
+  const res = await fetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+  });
+  if (res.status === 404) return { data: null, sha: null };
+  if (!res.ok) throw new Error("GitHub GET " + res.status);
+  const json = await res.json();
+  return { data: JSON.parse(b64DecodeUnicode(json.content)), sha: json.sha };
+}
+
+async function ghPutFile(path, data, sha, message) {
+  const token = getToken();
+  if (!token) throw new Error("no-token");
+  const body = {
+    message,
+    content: b64EncodeUnicode(JSON.stringify(data, null, 2)),
+    branch: "main"
+  };
+  if (sha) body.sha = sha;
+  const res = await fetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error("GitHub PUT " + res.status);
+  const json = await res.json();
+  return json.content.sha;
+}
+
+function ensureToken() {
+  let token = getToken();
+  if (!token) {
+    token = window.prompt(
+      "Pegá tu GitHub Personal Access Token (permiso Contents: Read/Write en el repo training-app):"
+    );
+    if (token) setToken(token);
+  }
+  return getToken();
+}
+
+document.getElementById("settingsBtn").addEventListener("click", () => {
+  const current = getToken();
+  const token = window.prompt(
+    "Token de GitHub (dejalo vacío y aceptá para borrarlo):",
+    current
+  );
+  if (token === null) return;
+  if (token.trim() === "") {
+    localStorage.removeItem("gh_pat");
+    showToast("Token borrado");
+  } else {
+    setToken(token);
+    showToast("Token guardado");
+    init();
+  }
+});
+
+let stateSha = null;
+let chatSha = null;
+
 async function loadState() {
   try {
-    const res = await fetch("/api/state");
-    return await res.json();
+    setSyncStatus("Sincronizando…");
+    const { data, sha } = await ghGetFile(STATE_PATH);
+    stateSha = sha;
+    setSyncStatus("Sincronizado ✓", "ok");
+    return data || {};
   } catch (e) {
-    return {};
+    setSyncStatus(
+      e.message === "no-token" ? "Sin token de GitHub configurado" : "Error al sincronizar",
+      "error"
+    );
+    const cached = localStorage.getItem("state_cache");
+    return cached ? JSON.parse(cached) : {};
   }
 }
+
+let saveTimeout = null;
 function saveState(state) {
-  fetch("/api/state", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(state)
-  }).catch(() => {
-    showToast("No se pudo guardar (¿el servidor sigue corriendo?)");
-  });
+  localStorage.setItem("state_cache", JSON.stringify(state));
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => persistState(state), 1000);
+}
+
+async function persistState(state) {
+  try {
+    setSyncStatus("Guardando…");
+    stateSha = await ghPutFile(STATE_PATH, state, stateSha, "Actualizar estado de entrenamiento");
+    setSyncStatus("Guardado ✓", "ok");
+  } catch (e) {
+    try {
+      const fresh = await ghGetFile(STATE_PATH);
+      stateSha = await ghPutFile(STATE_PATH, state, fresh.sha, "Actualizar estado de entrenamiento");
+      setSyncStatus("Guardado ✓", "ok");
+    } catch (e2) {
+      setSyncStatus("No se pudo guardar en GitHub", "error");
+    }
+  }
 }
 
 let state = { currentDay: 1, weights: {}, completed: {}, history: [] };
@@ -758,9 +906,9 @@ document.querySelectorAll(".main-tab").forEach(tab => {
 // ---- Chat ----
 async function fetchChat() {
   try {
-    const res = await fetch("/api/chat");
-    const messages = await res.json();
-    renderChatMessages(messages);
+    const { data, sha } = await ghGetFile(CHAT_PATH);
+    chatSha = sha;
+    renderChatMessages(data || []);
   } catch (e) {}
 }
 
@@ -789,14 +937,19 @@ async function sendChatMessage() {
   if (!text) return;
   input.value = "";
   try {
-    await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
+    // Refetch latest first so we don't clobber messages Claude just pushed.
+    const { data, sha } = await ghGetFile(CHAT_PATH);
+    const messages = data || [];
+    messages.push({
+      id: (messages.reduce((m, x) => Math.max(m, x.id || 0), 0)) + 1,
+      role: "user",
+      text,
+      ts: new Date().toISOString()
     });
-    fetchChat();
+    chatSha = await ghPutFile(CHAT_PATH, messages, sha, "Nuevo mensaje de feedback");
+    renderChatMessages(messages);
   } catch (e) {
-    showToast("No se pudo enviar (¿el servidor sigue corriendo?)");
+    showToast("No se pudo enviar (¿configuraste el token en ⚙️?)");
   }
 }
 
@@ -810,6 +963,7 @@ document.getElementById("chatInput").addEventListener("keydown", e => {
 
 // ---- Init ----
 async function init() {
+  ensureToken();
   const loaded = await loadState();
   Object.assign(state, loaded);
   renderDate();
@@ -818,6 +972,12 @@ async function init() {
   setTimerSeconds(90);
 }
 init();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

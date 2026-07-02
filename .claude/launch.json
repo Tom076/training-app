@@ -4,7 +4,7 @@
     {
       "name": "training-app",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["server.py"],
+      "runtimeArgs": ["-m", "http.server", "8848", "--directory", "docs"],
       "port": 8848
     }
   ]
