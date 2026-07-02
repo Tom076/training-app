@@ -1,1 +1,14 @@
-{}
+{
+  "currentDay": 1,
+  "weights": {},
+  "completed": {
+    "1": {
+      "0": [
+        true,
+        false,
+        false
+      ]
+    }
+  },
+  "history": []
+}
