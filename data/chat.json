@@ -4,5 +4,11 @@
     "role": "user",
     "text": "Prueba: el press banca se sintió pesado, ¿bajamos peso?",
     "ts": "2026-07-02T11:24:04.136Z"
+  },
+  {
+    "id": 2,
+    "role": "assistant",
+    "text": "Esto es una prueba de verificación del flujo completo (app → GitHub → Claude → GitHub → app).",
+    "ts": "2026-07-02T11:24:30.000Z"
   }
 ]
