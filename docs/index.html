@@ -891,6 +891,7 @@ function startTimer() {
       document.getElementById("startPause").textContent = "Iniciar";
       document.getElementById("timerDisplay").classList.add("done");
       playBeep();
+      setTimeout(() => setTimerSeconds(timerSeconds), 2000);
     }
   }, 1000);
 }
