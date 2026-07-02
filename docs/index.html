@@ -404,8 +404,9 @@
 <header>
   <div class="date-row">
     <div class="date" id="todayDate"></div>
-    <button class="settings-btn" id="settingsBtn" title="Configurar token de GitHub">⚙️</button>
+    <button class="settings-btn" id="settingsBtn" title="Configurar perfil y token de GitHub">⚙️</button>
   </div>
+  <div class="sync-status" id="profileStatus"></div>
   <div class="sync-status" id="syncStatus"></div>
   <div class="tabs" id="dayTabs"></div>
   <div class="timer-box">
@@ -492,14 +493,42 @@ const REST_SECONDS = { principal: 90, accesorio: 60, core: 45 };
 const GH_OWNER = "Tom076";
 const GH_REPO = "training-app";
 const GH_API = "https://api.github.com";
-const STATE_PATH = "data/state.json";
-const CHAT_PATH = "data/chat.json";
 
 function getToken() {
   return localStorage.getItem("gh_pat") || "";
 }
 function setToken(t) {
   localStorage.setItem("gh_pat", t.trim());
+}
+
+function getProfile() {
+  return localStorage.getItem("profile_name") || "";
+}
+function setProfile(name) {
+  localStorage.setItem("profile_name", name.trim());
+}
+function slugify(name) {
+  return name.trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "default";
+}
+function getProfileSlug() {
+  const name = getProfile();
+  return name ? slugify(name) : "default";
+}
+function statePath() {
+  return `data/${getProfileSlug()}/state.json`;
+}
+function chatPath() {
+  return `data/${getProfileSlug()}/chat.json`;
+}
+
+function setProfileStatus() {
+  const el = document.getElementById("profileStatus");
+  if (!el) return;
+  const name = getProfile();
+  el.textContent = name ? `Perfil: ${name}` : "Sin perfil — tocá ⚙️ para configurar";
+  el.className = "sync-status" + (name ? "" : " error");
 }
 
 function b64EncodeUnicode(str) {
@@ -552,6 +581,15 @@ async function ghPutFile(path, data, sha, message) {
 }
 
 document.getElementById("settingsBtn").addEventListener("click", () => {
+  const currentName = getProfile();
+  const name = window.prompt(
+    "Tu nombre (separa tu historial del de otras personas que usen la app):",
+    currentName
+  );
+  if (name === null) return;
+  if (name.trim()) setProfile(name);
+  setProfileStatus();
+
   const current = getToken();
   const token = window.prompt(
     "Token de GitHub (dejalo vacío y aceptá para borrarlo):",
@@ -564,8 +602,8 @@ document.getElementById("settingsBtn").addEventListener("click", () => {
   } else {
     setToken(token);
     showToast("Token guardado");
-    init();
   }
+  init();
 });
 
 let stateSha = null;
@@ -574,7 +612,7 @@ let chatSha = null;
 async function loadState() {
   try {
     setSyncStatus("Sincronizando…");
-    const { data, sha } = await ghGetFile(STATE_PATH);
+    const { data, sha } = await ghGetFile(statePath());
     stateSha = sha;
     setSyncStatus("Sincronizado ✓", "ok");
     return data || {};
@@ -583,14 +621,14 @@ async function loadState() {
       e.message === "no-token" ? "Sin token de GitHub configurado" : "Error al sincronizar",
       "error"
     );
-    const cached = localStorage.getItem("state_cache");
+    const cached = localStorage.getItem("state_cache_" + getProfileSlug());
     return cached ? JSON.parse(cached) : {};
   }
 }
 
 let saveTimeout = null;
 function saveState(state) {
-  localStorage.setItem("state_cache", JSON.stringify(state));
+  localStorage.setItem("state_cache_" + getProfileSlug(), JSON.stringify(state));
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => persistState(state), 1000);
 }
@@ -598,12 +636,12 @@ function saveState(state) {
 async function persistState(state) {
   try {
     setSyncStatus("Guardando…");
-    stateSha = await ghPutFile(STATE_PATH, state, stateSha, "Actualizar estado de entrenamiento");
+    stateSha = await ghPutFile(statePath(), state, stateSha, "Actualizar estado de entrenamiento");
     setSyncStatus("Guardado ✓", "ok");
   } catch (e) {
     try {
-      const fresh = await ghGetFile(STATE_PATH);
-      stateSha = await ghPutFile(STATE_PATH, state, fresh.sha, "Actualizar estado de entrenamiento");
+      const fresh = await ghGetFile(statePath());
+      stateSha = await ghPutFile(statePath(), state, fresh.sha, "Actualizar estado de entrenamiento");
       setSyncStatus("Guardado ✓", "ok");
     } catch (e2) {
       setSyncStatus("No se pudo guardar en GitHub", "error");
@@ -895,7 +933,7 @@ document.querySelectorAll(".main-tab").forEach(tab => {
 // ---- Chat ----
 async function fetchChat() {
   try {
-    const { data, sha } = await ghGetFile(CHAT_PATH);
+    const { data, sha } = await ghGetFile(chatPath());
     chatSha = sha;
     renderChatMessages(data || []);
   } catch (e) {}
@@ -927,7 +965,7 @@ async function sendChatMessage() {
   input.value = "";
   try {
     // Refetch latest first so we don't clobber messages Claude just pushed.
-    const { data, sha } = await ghGetFile(CHAT_PATH);
+    const { data, sha } = await ghGetFile(chatPath());
     const messages = data || [];
     messages.push({
       id: (messages.reduce((m, x) => Math.max(m, x.id || 0), 0)) + 1,
@@ -935,7 +973,7 @@ async function sendChatMessage() {
       text,
       ts: new Date().toISOString()
     });
-    chatSha = await ghPutFile(CHAT_PATH, messages, sha, "Nuevo mensaje de feedback");
+    chatSha = await ghPutFile(chatPath(), messages, sha, "Nuevo mensaje de feedback");
     renderChatMessages(messages);
   } catch (e) {
     showToast("No se pudo enviar (¿configuraste el token en ⚙️?)");
@@ -952,7 +990,11 @@ document.getElementById("chatInput").addEventListener("keydown", e => {
 
 // ---- Init ----
 async function init() {
+  setProfileStatus();
   if (!getToken()) setSyncStatus("Sin token — tocá ⚙️ para configurar", "error");
+  stateSha = null;
+  chatSha = null;
+  state = { currentDay: 1, weights: {}, completed: {}, history: [] };
   const loaded = await loadState();
   Object.assign(state, loaded);
   renderDate();
