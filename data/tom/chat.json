@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": 1,
+    "role": "user",
+    "text": "estoy probando la conexion de la app, te llega?",
+    "ts": "2026-07-02T12:49:12.573Z"
+  },
+  {
+    "id": 2,
+    "role": "assistant",
+    "text": "Sí, conexión confirmada. El flujo funciona perfecto — cuando registres feedback de un ejercicio desde la app me llega acá, te respondo y hago commit. Listo para entrenar.",
+    "ts": "2026-07-02T12:50:00.000Z"
+  }
+]
