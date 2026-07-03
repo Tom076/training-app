@@ -1,6 +1,46 @@
 {
   "currentDay": 3,
   "weights": {},
-  "completed": {},
-  "history": []
+  "completed": {
+    "2": {}
+  },
+  "history": [
+    {
+      "date": "2026-07-02T16:26:07.303Z",
+      "day": 2,
+      "dayTitle": "Tren Superior",
+      "entries": [
+        {
+          "name": "Dominadas",
+          "peso": "Peso corporal",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Press Banca Mancuernas",
+          "peso": "16 kg",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Remo Unilateral",
+          "peso": "22 kg",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Face Pull",
+          "peso": "Banda 5 kg",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Y Raise",
+          "peso": "Sin peso",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Hollow Body",
+          "peso": "—",
+          "seriesCompletadas": "0/3"
+        }
+      ]
+    }
+  ]
 }
