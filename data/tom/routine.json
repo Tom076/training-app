@@ -1,0 +1,36 @@
+{
+  "1": {
+    "title": "Fuerza Pierna",
+    "exercises": [
+      { "name": "Bulgarian Split Squat", "series": "3+1 operada", "reps": "8", "pesoDefault": "4 kg/mano", "rest": "principal" },
+      { "name": "Single Leg Squat", "series": "3", "reps": "8", "pesoDefault": "Peso corporal", "rest": "principal" },
+      { "name": "RDL Unilateral", "series": "3", "reps": "10", "pesoDefault": "19 kg", "rest": "principal" },
+      { "name": "Gemelo Unilateral", "series": "3", "reps": "10", "pesoDefault": "10 kg", "rest": "accesorio" },
+      { "name": "Hollow Body", "series": "3", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+    ]
+  },
+  "2": {
+    "title": "Tren Superior",
+    "exercises": [
+      { "name": "Dominadas", "series": "3", "reps": "6", "pesoDefault": "Peso corporal", "rest": "principal" },
+      { "name": "Press Banca Mancuernas", "series": "3", "reps": "8", "pesoDefault": "16 kg", "rest": "principal" },
+      { "name": "Remo Unilateral", "series": "3", "reps": "10", "pesoDefault": "22 kg", "rest": "principal" },
+      { "name": "Face Pull", "series": "3", "reps": "15", "pesoDefault": "Banda 5 kg", "rest": "accesorio" },
+      { "name": "Y Raise", "series": "3", "reps": "15", "pesoDefault": "Sin peso", "rest": "accesorio" },
+      { "name": "Hollow Body", "series": "3", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+    ]
+  },
+  "3": {
+    "title": "Potencia y Acondicionamiento",
+    "exercises": [
+      { "name": "Single Leg Balance", "series": "3", "reps": "30s/lado", "pesoDefault": "—", "rest": "accesorio" },
+      { "name": "Lateral Band Walk", "series": "3", "reps": "15 pasos/lado", "pesoDefault": "Banda", "rest": "accesorio" },
+      { "name": "Step-up Explosivo", "series": "3", "reps": "6/lado", "pesoDefault": "Caja 12\"", "rest": "principal" },
+      { "name": "Broad Jump", "series": "3", "reps": "5", "pesoDefault": "—", "rest": "principal" },
+      { "name": "Farmer Carry", "series": "3", "reps": "25m", "pesoDefault": "Calibrar", "rest": "principal" },
+      { "name": "Suitcase Carry", "series": "3", "reps": "20m/lado", "pesoDefault": "Calibrar", "rest": "accesorio" },
+      { "name": "Swing Mancuerna", "series": "3", "reps": "10", "pesoDefault": "Calibrar", "rest": "principal" },
+      { "name": "Hollow Body", "series": "3", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+    ]
+  }
+}

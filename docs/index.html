@@ -450,42 +450,7 @@
 </footer>
 
 <script>
-const ROUTINE = {
-  1: {
-    title: "Fuerza Pierna",
-    exercises: [
-      { name: "Bulgarian Split Squat", series: "3+1 operada", reps: "8", pesoDefault: "4 kg/mano", rest: "principal" },
-      { name: "Single Leg Squat", series: "3", reps: "8", pesoDefault: "Peso corporal", rest: "principal" },
-      { name: "RDL Unilateral", series: "3", reps: "10", pesoDefault: "19 kg", rest: "principal" },
-      { name: "Gemelo Unilateral", series: "3", reps: "10", pesoDefault: "10 kg", rest: "accesorio" },
-      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
-    ]
-  },
-  2: {
-    title: "Tren Superior",
-    exercises: [
-      { name: "Dominadas", series: "3", reps: "6", pesoDefault: "Peso corporal", rest: "principal" },
-      { name: "Press Banca Mancuernas", series: "3", reps: "8", pesoDefault: "16 kg", rest: "principal" },
-      { name: "Remo Unilateral", series: "3", reps: "10", pesoDefault: "22 kg", rest: "principal" },
-      { name: "Face Pull", series: "3", reps: "15", pesoDefault: "Banda 5 kg", rest: "accesorio" },
-      { name: "Y Raise", series: "3", reps: "15", pesoDefault: "Sin peso", rest: "accesorio" },
-      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
-    ]
-  },
-  3: {
-    title: "Potencia y Acondicionamiento",
-    exercises: [
-      { name: "Single Leg Balance", series: "3", reps: "30s/lado", pesoDefault: "—", rest: "accesorio" },
-      { name: "Lateral Band Walk", series: "3", reps: "15 pasos/lado", pesoDefault: "Banda", rest: "accesorio" },
-      { name: "Step-up Explosivo", series: "3", reps: "6/lado", pesoDefault: "Caja 12\"", rest: "principal" },
-      { name: "Broad Jump", series: "3", reps: "5", pesoDefault: "—", rest: "principal" },
-      { name: "Farmer Carry", series: "3", reps: "25m", pesoDefault: "Calibrar", rest: "principal" },
-      { name: "Suitcase Carry", series: "3", reps: "20m/lado", pesoDefault: "Calibrar", rest: "accesorio" },
-      { name: "Swing Mancuerna", series: "3", reps: "10", pesoDefault: "Calibrar", rest: "principal" },
-      { name: "Hollow Body", series: "3", reps: "20-30s", pesoDefault: "—", rest: "core" }
-    ]
-  }
-};
+let ROUTINE = {};
 
 const REST_SECONDS = { principal: 90, accesorio: 60, core: 45 };
 
@@ -521,6 +486,9 @@ function statePath() {
 }
 function chatPath() {
   return `data/${getProfileSlug()}/chat.json`;
+}
+function routinePath() {
+  return `data/${getProfileSlug()}/routine.json`;
 }
 
 function setProfileStatus() {
@@ -649,6 +617,17 @@ async function persistState(state) {
   }
 }
 
+async function loadRoutine() {
+  try {
+    const { data } = await ghGetFile(routinePath());
+    if (data) localStorage.setItem("routine_cache_" + getProfileSlug(), JSON.stringify(data));
+    return data || {};
+  } catch (e) {
+    const cached = localStorage.getItem("routine_cache_" + getProfileSlug());
+    return cached ? JSON.parse(cached) : {};
+  }
+}
+
 let state = { currentDay: 1, weights: {}, completed: {}, history: [] };
 
 function parseSetsCount(seriesStr) {
@@ -690,9 +669,19 @@ function renderTabs() {
 }
 
 function renderExercises() {
-  const day = state.currentDay;
-  const data = ROUTINE[day];
   const list = document.getElementById("exerciseList");
+  const days = Object.keys(ROUTINE);
+  if (days.length === 0) {
+    list.innerHTML = `<div class="day-title">Sin rutina configurada</div>
+      <p style="color: var(--muted); font-size: 14px;">
+        Todavía no hay una rutina para el perfil "${getProfile() || getProfileSlug()}".
+        Pedile a Claude que cree <code>${routinePath()}</code> en el repo, o tocá ⚙️ si esperabas ver otra cosa.
+      </p>`;
+    return;
+  }
+  const day = ROUTINE[state.currentDay] ? state.currentDay : Number(days[0]);
+  state.currentDay = day;
+  const data = ROUTINE[day];
   list.innerHTML = `<div class="day-title">Día ${day} — ${data.title}</div>`;
 
   data.exercises.forEach((ex, idx) => {
@@ -772,6 +761,7 @@ function showToast(msg) {
 document.getElementById("saveSession").addEventListener("click", () => {
   const day = state.currentDay;
   const data = ROUTINE[day];
+  if (!data) { showToast("No hay rutina configurada"); return; }
   const entries = data.exercises.map((ex, idx) => {
     const setsCount = parseSetsCount(ex.series);
     const completed = getCompleted(day, idx, setsCount);
@@ -798,6 +788,7 @@ document.getElementById("saveSession").addEventListener("click", () => {
 document.getElementById("copySummary").addEventListener("click", async () => {
   const day = state.currentDay;
   const data = ROUTINE[day];
+  if (!data) { showToast("No hay rutina configurada"); return; }
   let text = `Resumen — Día ${day}: ${data.title} (${new Date().toLocaleDateString("es-ES")})\n\n`;
   data.exercises.forEach((ex, idx) => {
     const setsCount = parseSetsCount(ex.series);
@@ -996,6 +987,7 @@ async function init() {
   stateSha = null;
   chatSha = null;
   state = { currentDay: 1, weights: {}, completed: {}, history: [] };
+  ROUTINE = await loadRoutine();
   const loaded = await loadState();
   Object.assign(state, loaded);
   renderDate();
