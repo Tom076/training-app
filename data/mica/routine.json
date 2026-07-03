@@ -1,0 +1,20 @@
+{
+  "1": {
+    "title": "Día Test A",
+    "exercises": [
+      { "name": "Goblet Squat", "series": "2", "reps": "8", "pesoDefault": "6 kg", "rest": "principal" },
+      { "name": "DB Row a una mano", "series": "2", "reps": "8", "pesoDefault": "6 kg/mano", "rest": "principal" },
+      { "name": "Wall Slide / Y-hold", "series": "2", "reps": "8", "pesoDefault": "Sin peso", "rest": "accesorio" },
+      { "name": "Plank", "series": "2", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+    ]
+  },
+  "2": {
+    "title": "Día Test B",
+    "exercises": [
+      { "name": "DB Bench Press", "series": "2", "reps": "8", "pesoDefault": "6 kg/mano", "rest": "principal" },
+      { "name": "DB Romanian Deadlift", "series": "2", "reps": "8", "pesoDefault": "8 kg/mano", "rest": "principal" },
+      { "name": "Step-up", "series": "2", "reps": "6/lado", "pesoDefault": "4 kg/mano", "rest": "accesorio" },
+      { "name": "Hollow Body", "series": "2", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+    ]
+  }
+}
