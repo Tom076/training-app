@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "role": "user",
+    "text": "probando la conexion de mi perfil, te llega?",
+    "ts": "2026-07-03T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "role": "assistant",
+    "text": "Conexión confirmada para el perfil de Mica. Cuando registres feedback desde la app me llega acá.",
+    "ts": "2026-07-03T00:00:01.000Z"
+  }
+]
