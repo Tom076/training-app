@@ -1,20 +1,24 @@
 {
   "1": {
-    "title": "Día Test A",
+    "title": "Día A",
     "exercises": [
-      { "name": "Goblet Squat", "series": "2", "reps": "8", "pesoDefault": "6 kg", "rest": "principal" },
-      { "name": "DB Row a una mano", "series": "2", "reps": "8", "pesoDefault": "6 kg/mano", "rest": "principal" },
-      { "name": "Wall Slide / Y-hold", "series": "2", "reps": "8", "pesoDefault": "Sin peso", "rest": "accesorio" },
-      { "name": "Plank", "series": "2", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+      { "name": "DB Bench Press (plano)", "series": "3", "reps": "8", "pesoDefault": "5.5 kg/mano", "rest": "principal" },
+      { "name": "DB Row Unilateral", "series": "3", "reps": "8", "pesoDefault": "7 kg/mano", "rest": "principal" },
+      { "name": "Goblet Squat", "series": "3", "reps": "8", "pesoDefault": "10 kg", "rest": "principal" },
+      { "name": "Face Pull", "series": "3", "reps": "15", "pesoDefault": "Banda liviana", "rest": "accesorio" },
+      { "name": "Y-Raise", "series": "3", "reps": "12", "pesoDefault": "Sin peso", "rest": "accesorio" },
+      { "name": "Plank", "series": "3", "reps": "30-40s", "pesoDefault": "—", "rest": "core" }
     ]
   },
   "2": {
-    "title": "Día Test B",
+    "title": "Día B",
     "exercises": [
-      { "name": "DB Bench Press", "series": "2", "reps": "8", "pesoDefault": "6 kg/mano", "rest": "principal" },
-      { "name": "DB Romanian Deadlift", "series": "2", "reps": "8", "pesoDefault": "8 kg/mano", "rest": "principal" },
-      { "name": "Step-up", "series": "2", "reps": "6/lado", "pesoDefault": "4 kg/mano", "rest": "accesorio" },
-      { "name": "Hollow Body", "series": "2", "reps": "20-30s", "pesoDefault": "—", "rest": "core" }
+      { "name": "DB RDL Unilateral", "series": "3", "reps": "8/pierna", "pesoDefault": "7 kg/mano", "rest": "principal" },
+      { "name": "Negativa de Dominada Asistida", "series": "3", "reps": "5", "pesoDefault": "Banda amarilla (~20kg asist.)", "rest": "principal" },
+      { "name": "Step-up", "series": "3", "reps": "8/pierna", "pesoDefault": "4 kg/mano", "rest": "principal" },
+      { "name": "Push-up Incline (banco)", "series": "3", "reps": "8-10", "pesoDefault": "Peso corporal", "rest": "accesorio" },
+      { "name": "Lateral Band Walk", "series": "3", "reps": "15 pasos/lado", "pesoDefault": "Banda", "rest": "accesorio" },
+      { "name": "Dead Hang Progresivo", "series": "2", "reps": "Máximo esfuerzo", "pesoDefault": "Peso corporal (~15-18s)", "rest": "accesorio" }
     ]
   }
 }
