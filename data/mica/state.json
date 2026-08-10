@@ -37,6 +37,43 @@
   },
   "history": [
     {
+      "date": "2026-08-10T07:22:06.868Z",
+      "day": 1,
+      "dayTitle": "Día A",
+      "entries": [
+        {
+          "name": "DB Bench Press (plano)",
+          "peso": "5.5 kg/mano",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "DB Row Unilateral",
+          "peso": "7 kg/mano",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Goblet Squat",
+          "peso": "10 kg",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Face Pull",
+          "peso": "Banda liviana",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Y-Raise",
+          "peso": "Sin peso",
+          "seriesCompletadas": "0/3"
+        },
+        {
+          "name": "Plank",
+          "peso": "—",
+          "seriesCompletadas": "0/3"
+        }
+      ]
+    },
+    {
       "date": "2026-08-10T07:22:05.351Z",
       "day": 1,
       "dayTitle": "Día A",
