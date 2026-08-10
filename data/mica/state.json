@@ -2,7 +2,13 @@
   "currentDay": 1,
   "weights": {},
   "completed": {
-    "1": {},
+    "1": {
+      "1": [
+        true,
+        false,
+        false
+      ]
+    },
     "2": {
       "0": [
         true,
