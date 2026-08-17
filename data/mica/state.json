@@ -27,6 +27,11 @@
         true,
         true,
         true
+      ],
+      "5": [
+        true,
+        false,
+        false
       ]
     },
     "2": {
