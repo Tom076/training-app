@@ -42,8 +42,8 @@
       ],
       "1": [
         false,
-        true,
-        true
+        false,
+        false
       ],
       "2": [
         true,
