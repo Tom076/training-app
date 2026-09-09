@@ -34,39 +34,46 @@
         true
       ]
     },
-    "2": {
-      "0": [
-        true,
-        true,
-        true
-      ],
-      "1": [
-        true,
-        true,
-        true
-      ],
-      "2": [
-        true,
-        true,
-        true
-      ],
-      "3": [
-        true,
-        true,
-        true
-      ],
-      "4": [
-        true,
-        true,
-        false
-      ],
-      "5": [
-        true,
-        false
-      ]
-    }
+    "2": {}
   },
   "history": [
+    {
+      "date": "2026-09-09T07:45:02.043Z",
+      "day": 2,
+      "dayTitle": "Día B",
+      "entries": [
+        {
+          "name": "DB RDL Unilateral",
+          "peso": "7 kg/mano",
+          "seriesCompletadas": "3/3"
+        },
+        {
+          "name": "Negativa de Dominada Asistida",
+          "peso": "Banda amarilla (~20kg asist.)",
+          "seriesCompletadas": "3/3"
+        },
+        {
+          "name": "Step-up",
+          "peso": "4 kg/mano",
+          "seriesCompletadas": "3/3"
+        },
+        {
+          "name": "Push-up Incline (banco)",
+          "peso": "Peso corporal",
+          "seriesCompletadas": "3/3"
+        },
+        {
+          "name": "Lateral Band Walk",
+          "peso": "Banda",
+          "seriesCompletadas": "2/3"
+        },
+        {
+          "name": "Dead Hang Progresivo",
+          "peso": "Peso corporal (~15-18s)",
+          "seriesCompletadas": "1/2"
+        }
+      ]
+    },
     {
       "date": "2026-08-10T07:48:48.277Z",
       "day": 1,
