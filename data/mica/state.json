@@ -22,6 +22,11 @@
         true,
         true,
         true
+      ],
+      "4": [
+        true,
+        false,
+        false
       ]
     },
     "2": {}
