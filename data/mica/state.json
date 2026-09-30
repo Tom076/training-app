@@ -3,6 +3,11 @@
   "weights": {},
   "completed": {
     "1": {
+      "0": [
+        true,
+        false,
+        false
+      ],
       "1": [
         true,
         false,
