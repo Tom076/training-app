@@ -3,7 +3,13 @@
   "weights": {},
   "completed": {
     "1": {},
-    "2": {}
+    "2": {
+      "0": [
+        true,
+        false,
+        false
+      ]
+    }
   },
   "history": [
     {
